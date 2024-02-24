@@ -139,19 +139,19 @@ async def main():
     await bot.delete_my_commands(scope=None, language_code=None)
     await bot.set_my_commands(
         commands=[
-            telebot.types.BotCommand("gemini", "call bot in a group"),
-            telebot.types.BotCommand("clear", "delete history")
+            telebot.types.BotCommand("go", "群内使用机器人"),
+            telebot.types.BotCommand("clear", "删除历史记录")
         ],
     )
     print("Bot init done.")
 
     # Init commands
-    @bot.message_handler(commands=["gemini"])
+    @bot.message_handler(commands=["go"])
     async def gemini_handler(message: Message):
         try:
             m = message.text.strip().split(maxsplit=1)[1].strip()
         except IndexError:
-            await bot.reply_to( message , escape("Please type /gemini followed by what you want to say.For example:\n`/gemini Hello!`"), parse_mode="MarkdownV2")
+            await bot.reply_to( message , escape("请输入/go，然后键入你想说的话。例如\n`/go Hello!`"), parse_mode="MarkdownV2")
             return
         player = None
         # restart will lose all TODO
@@ -171,16 +171,16 @@ async def main():
 
         except Exception as e:
             traceback.print_exc()
-            await bot.reply_to(message, "Something wrong, possibly due to security, please try changing your prompt or contact admin")
+            await bot.reply_to(message, "出现问题，可能是由于安全原因，请尝试更改提示或联系管理员")
 
     @bot.message_handler(commands=["clear"])
     async def gemini_handler(message: Message):
         # Check if the player is already in gemini_player_dict.
         if str(message.from_user.id) in gemini_player_dict:
             del gemini_player_dict[str(message.from_user.id)]
-            await bot.reply_to(message, "Your history has been cleared")
+            await bot.reply_to(message, "您的历史记录已被清除")
         else:
-            await bot.reply_to(message, "your history is empty already")
+            await bot.reply_to(message, "您的历史记录已清空")
     
     @bot.message_handler(func=lambda message: message.chat.type == "private", content_types=['text'])
     async def gemini_private_handler(message: Message):
@@ -204,13 +204,13 @@ async def main():
 
         except Exception as e:
             traceback.print_exc()
-            await bot.reply_to(message, "Something wrong, possibly due to security, please try changing your prompt or contact admin")
+            await bot.reply_to(message, "出现问题，可能是由于安全原因，请尝试更改提示或联系管理员")
             
     @bot.message_handler(content_types=["photo"])
     async def gemini_photo_handler(message: Message) -> None:
         if message.chat.type != "private":
             s = message.caption
-            if not s or not (s.startswith("/gemini")):
+            if not s or not (s.startswith("/go")):
                 return
             try:
                 prompt = s.strip().split(maxsplit=1)[1].strip() if len(s.strip().split(maxsplit=1)) > 1 else "no prompt"
@@ -220,7 +220,7 @@ async def main():
                     temp_file.write(downloaded_file)
             except Exception as e:
                 traceback.print_exc()
-                await bot.reply_to(message, "Something is wrong reading your photo or prompt")
+                await bot.reply_to(message, "阅读照片或提示时出现问题")
             model = genai.GenerativeModel("gemini-pro-vision")
             image_path = Path("gemini_temp.jpg")
             image_data = image_path.read_bytes()
@@ -232,7 +232,7 @@ async def main():
                 await bot.reply_to(message, response.text)
             except Exception as e:
                 traceback.print_exc()
-                await bot.reply_to(message, "Something wrong, possibly due to security, please try changing your prompt or contact admin")
+                await bot.reply_to(message, "出现问题，可能是由于安全原因，请尝试更改提示或联系管理员")
         else:
             s = message.caption if message.caption else "no prompt"
             try:
@@ -243,7 +243,7 @@ async def main():
                     temp_file.write(downloaded_file)
             except Exception as e:
                 traceback.print_exc()
-                await bot.reply_to(message, "Something is wrong reading your photo or prompt")
+                await bot.reply_to(message, "阅读照片或提示时出现问题")
             model = genai.GenerativeModel("gemini-pro-vision")
             image_path = Path("gemini_temp.jpg")
             image_data = image_path.read_bytes()
@@ -255,7 +255,7 @@ async def main():
                 await bot.reply_to(message, response.text)
             except Exception as e:
                 traceback.print_exc()
-                await bot.reply_to(message, "Something wrong, possibly due to security, please try changing your prompt or contact admin")
+                await bot.reply_to(message, "出现问题，可能是由于安全原因，请尝试更改提示或联系管理员")
                 
     # Start bot
     print("Starting Gemini_Telegram_Bot.")
